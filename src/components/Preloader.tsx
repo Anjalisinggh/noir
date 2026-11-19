@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-/** Counter 000→100 with the wordmark rising, then the curtain lifts. */
+/** Counter 000 to 100 with the wordmark rising, then the curtain lifts. */
 export function Preloader() {
   const root = useRef<HTMLDivElement>(null);
   const count = useRef<HTMLSpanElement>(null);
@@ -56,7 +56,7 @@ export function Preloader() {
         ))}
       </div>
       <div className="preloader__foot">
-        <span>Luxury, Awakened</span>
+        <span>Maison Noir</span>
         <span ref={count} className="preloader__count">
           000
         </span>

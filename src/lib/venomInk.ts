@@ -1,11 +1,11 @@
 /**
- * Venom ink transition — field generator.
+ * Venom ink transition: field generator.
  *
  * We render (once per splash, on the GPU) an "arrival time" field: for every
  * pixel, a 0..1 value saying WHEN the ink reaches it. It is distance from the
  * toggle, pushed around by domain-warped noise sampled in polar space, so the
  * front breaks into feathery, outward-streaked fingers with marbled veins and
- * stray blobs ahead of it — like ink poured into milk.
+ * stray blobs ahead of it: like ink poured into milk.
  *
  * During the transition an SVG mask thresholds that field at time t
  * (visible where field < t), revealing the new theme through the ink.
@@ -229,7 +229,7 @@ export function thresholdMatrix(t: number) {
   return `${-S} 0 0 0 ${o}  ${-S} 0 0 0 ${o}  ${-S} 0 0 0 ${o}  0 0 0 1 0`;
 }
 
-/** slow start, quick middle, lingering tail — like ink finding its way */
+/** slow start, quick middle, lingering tail: like ink finding its way */
 export function inkEase(p: number) {
   return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2.2) / 2;
 }

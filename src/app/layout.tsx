@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Bodoni_Moda, Syncopate, Inter_Tight } from "next/font/google";
+import { IM_Fell_English, Hanken_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { SmoothScroll } from "@/components/SmoothScroll";
 import { Preloader } from "@/components/Preloader";
@@ -7,28 +7,24 @@ import { Entity } from "@/components/Entity";
 import { LiquidCursor } from "@/components/LiquidCursor";
 import "./globals.css";
 
-const serif = Bodoni_Moda({
+// display: type cut in the 1670s, when mezzotint ("la maniere noire", printing from black) was new
+const serif = IM_Fell_English({
   variable: "--font-serif",
   subsets: ["latin"],
-  weight: ["400", "500"],
+  weight: "400",
   style: ["normal", "italic"],
 });
 
-const wide = Syncopate({
-  variable: "--font-wide",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
-
-const sans = Inter_Tight({
+// everything small: labels, buttons, body copy
+const sans = Hanken_Grotesk({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400"],
+  weight: ["300", "400", "500"],
 });
 
 export const metadata: Metadata = {
-  title: "NOIR — Luxury, Awakened",
-  description: "A cinematic concept experience for a fictional ultra-luxury maison, led by a living black liquid.",
+  title: "Noir · Every piece begins as one drop of black",
+  description: "A concept site for a made-up luxury house, where one drop of black liquid becomes a car, a watch, a ring and a jet.",
 };
 
 // Restore the theme the visitor last chose (first visit begins in silence: light), before paint so
@@ -37,7 +33,7 @@ const boot = `(function(){var d=document.documentElement,t='light';d.classList.a
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${serif.variable} ${wide.variable} ${sans.variable}`} suppressHydrationWarning>
+    <html lang="en" className={`${serif.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: boot }} />
       </head>

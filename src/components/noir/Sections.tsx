@@ -7,7 +7,7 @@ import { AwakenButton, SilenceButton } from "./Buttons";
 export function Nav() {
   return (
     <header className="nav">
-      <a href="#silence" className="nav__brand" aria-label="NOIR — top">
+      <a href="#silence" className="nav__brand" aria-label="Noir, back to the top">
         NOIR
       </a>
       <nav className="nav__links" aria-label="Chapters">
@@ -19,28 +19,24 @@ export function Nav() {
   );
 }
 
-/** I. Silence — a white room and a single breathing drop. */
+/** I. Silence: a white room and a single breathing drop. */
 export function Silence() {
   return (
     <section className="silence" id="silence" data-scene="silence">
-      <p className="silence__kicker blend" data-intro>
-        Maison NOIR — Est. nowhere
-      </p>
       <h1 className="silence__title blend" data-intro>
-        Luxury, <em>Awakened.</em>
+        Every piece begins as one drop of black.
       </h1>
       <div className="silence__foot blend" data-intro>
-        <span>Touch it — or keep scrolling</span>
+        <span>Touch it, or keep scrolling.</span>
         <span className="silence__line" />
-        <span>Sound off · Lights low</span>
       </div>
     </section>
   );
 }
 
-/** II. Tension — it notices you. */
+/** II. Tension: it notices you. */
 export function Tension() {
-  const lines = ["It has been waiting.", "Quiet things are rarely calm.", "Come closer."];
+  const lines = ["This is the whole collection.", "Four objects, one drop of black.", "It moves when you do."];
   return (
     <section className="tension" data-scene="tension">
       {/* sticky boxes isolate blending, so the whole box blends, not each line */}
@@ -55,13 +51,13 @@ export function Tension() {
   );
 }
 
-/** III. Chaos — the letters break, the liquid splits, the world floods. */
+/** III. Chaos: the letters break, the liquid splits, the world floods. */
 export function Chaos() {
   return (
     <section className="chaos" data-scene="chaos">
       <div className="chaos__sticky blend">
-        <h2 className="chaos__word" aria-label="Awaken">
-          {"AWAKEN".split("").map((c, i) => (
+        <h2 className="chaos__word" aria-label="Spill">
+          {"SPILL".split("").map((c, i) => (
             <span key={i} className="chaos__letter">
               {c}
             </span>
@@ -79,10 +75,9 @@ export function Chaos() {
 }
 
 type Chapter = {
-  n: string;
   kind: string;
+  /** each name comes from a fact about the piece */
   title: string;
-  titleEm: string;
   copy: string;
   specs: [string, string][];
   media: string;
@@ -91,13 +86,11 @@ type Chapter = {
 
 const CHAPTERS: Chapter[] = [
   {
-    n: "I",
     kind: "Hypercar",
-    title: "Veloce",
-    titleEm: "Noir",
-    copy: "One thousand and eighty horses, poured into a single uninterrupted line of liquid carbon. Twelve exist. Eleven are spoken for.",
+    title: "Type 12",
+    copy: "1,080 horsepower and no chrome anywhere on it. The body is one piece of carbon, so there are no panel gaps to look at. We built twelve. Eleven have owners.",
     specs: [
-      ["0–100", "2.1 s"],
+      ["0 to 100", "2.1 s"],
       ["Power", "1,080 hp"],
       ["Built", "12"],
     ],
@@ -105,11 +98,9 @@ const CHAPTERS: Chapter[] = [
     side: "left",
   },
   {
-    n: "II",
-    kind: "Horology",
-    title: "Calibre",
-    titleEm: "Abyss",
-    copy: "A tourbillon suspended in black sapphire, so the movement seems to float in ink. It loses one second every forty years.",
+    kind: "Watch",
+    title: "Calibre 40",
+    copy: "The tourbillon sits in a black sapphire case, so from the side the movement looks like it is floating in ink. It drifts about one second every forty years, which is where the name comes from.",
     specs: [
       ["Parts", "1,212"],
       ["Reserve", "120 h"],
@@ -119,11 +110,9 @@ const CHAPTERS: Chapter[] = [
     side: "right",
   },
   {
-    n: "III",
-    kind: "Jewellery",
-    title: "Obsidian",
-    titleEm: "Heart",
-    copy: "A thirty-two carat black diamond, cut for nine hundred hours to swallow light rather than return it.",
+    kind: "Ring",
+    title: "Thirty-Two",
+    copy: "A 32 carat black diamond. Most stones are cut to throw light back at you. This one took 900 hours of cutting to keep it in.",
     specs: [
       ["Stone", "32 ct"],
       ["Cutting", "900 h"],
@@ -133,11 +122,9 @@ const CHAPTERS: Chapter[] = [
     side: "left",
   },
   {
-    n: "IV",
-    kind: "Private Travel",
-    title: "Nocturne",
-    titleEm: "Air",
-    copy: "No windows face the city — only the stars, and the dark between them. Fourteen guests, one crossing, no schedule.",
+    kind: "Private jet",
+    title: "N-14",
+    copy: "Fourteen seats and a ceiling that opens onto the night sky instead of side windows. It flies 7,700 nautical miles, far enough that you stop checking the time.",
     specs: [
       ["Range", "7,700 nm"],
       ["Guests", "14"],
@@ -148,14 +135,13 @@ const CHAPTERS: Chapter[] = [
   },
 ];
 
-/** IV. Discovery — the liquid becomes each object. */
+/** IV. Discovery: the liquid becomes each object. */
 export function Discovery() {
   return (
     <section className="discovery" id="discovery">
       <div className="discovery__intro">
-        <p className="label">IV — Discovery</p>
         <h2 className="discovery__title blend">
-          <Words text="It becomes whatever you desire." />
+          <Words text="Here is what it turns into." />
         </h2>
       </div>
       {CHAPTERS.map((c, i) => (
@@ -167,12 +153,8 @@ export function Discovery() {
           data-side={c.side}
         >
           <div className="chapter__text">
-            <p className="label">
-              <span className="chapter__n">{c.n}</span> {c.kind}
-            </p>
-            <h3 className="chapter__title blend">
-              {c.title} <em>{c.titleEm}</em>
-            </h3>
+            <p className="label">{c.kind}</p>
+            <h3 className="chapter__title blend">{c.title}</h3>
             <p className="chapter__copy">{c.copy}</p>
             <dl className="chapter__specs">
               {c.specs.map(([k, v]) => (
@@ -182,12 +164,12 @@ export function Discovery() {
                 </div>
               ))}
             </dl>
-            <a href="#vault" className="chapter__link" data-cursor="Enquire">
-              Request a private viewing <span aria-hidden>→</span>
+            <a href="#vault" className="chapter__link" data-cursor="Ask">
+              Ask to see it
             </a>
           </div>
           <div className="chapter__media">
-            <MediaSlot src={c.media} label={`${c.title} ${c.titleEm} film`} />
+            <MediaSlot src={c.media} label={`${c.title} film`} />
           </div>
         </article>
       ))}
@@ -195,16 +177,11 @@ export function Discovery() {
   );
 }
 
-/** V. The Vault — hold to open. */
+/** V. The Vault: hold to open. */
 export function VaultSection() {
   return (
     <section className="vault" id="vault" data-scene="vault">
-      <p className="label">V — The Vault</p>
-      <h2 className="vault__title blend">
-        Some things are not for sale.
-        <br />
-        <em>They are for you.</em>
-      </h2>
+      <h2 className="vault__title blend">The vault opens for one person at a time.</h2>
       <Vault />
     </section>
   );
@@ -218,15 +195,13 @@ export function Calm() {
         NOIR
       </div>
       <div className="calm__row">
-        <p className="calm__tag blend">
-          Luxury, <em>Awakened.</em>
-        </p>
+        <p className="calm__tag blend">That was the whole collection.</p>
         <SilenceButton />
       </div>
       <div className="calm__legal">
-        <span>© 2026 Maison NOIR</span>
-        <span>A fictional maison — concept experience</span>
-        <a href="#silence">Back to the beginning ↑</a>
+        <span>© 2026 Maison Noir</span>
+        <span>Maison Noir is made up. Nothing here is for sale.</span>
+        <a href="#silence">Back to the top</a>
       </div>
     </footer>
   );

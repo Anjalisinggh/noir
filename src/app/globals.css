@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* =========================================================
-   NOIR — tokens. Silence (paper) / Awakened (obsidian)
+   NOIR tokens. Paper (light) and ink (dark)
    ========================================================= */
 :root,
 :root[data-theme="light"] {
@@ -72,10 +72,9 @@ em {
 
 .label {
   margin: 0;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 
@@ -100,10 +99,9 @@ em {
   border: 1px solid var(--line);
   background: transparent;
   color: var(--fg);
-  font-family: var(--font-wide), sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   cursor: pointer;
   transition: border-color 0.4s, background 0.4s, color 0.4s;
 }
@@ -173,11 +171,9 @@ html.has-cursor * {
   top: 0;
   left: 0;
   translate: -50% -50%;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 8px;
-  font-weight: 700;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.01em;
   color: #000;
   opacity: 0;
   transition: opacity 0.25s;
@@ -238,10 +234,9 @@ html.has-cursor * {
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.32em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 .preloader__count {
@@ -281,19 +276,17 @@ html.has-cursor * {
   transform: translateY(-120%);
 }
 .nav__brand {
-  font-family: var(--font-wide), sans-serif;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.5em;
+  font-family: var(--font-serif), serif;
+  font-size: 24px;
+  letter-spacing: 0.06em;
 }
 .nav__links {
   display: flex;
   gap: 28px;
   margin-left: auto;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
 }
 .toggle {
   display: inline-flex;
@@ -305,10 +298,9 @@ html.has-cursor * {
   background: color-mix(in srgb, var(--bg) 70%, transparent);
   backdrop-filter: blur(10px);
   color: var(--fg);
-  font-family: var(--font-wide), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   cursor: pointer;
 }
 .toggle__dot {
@@ -333,36 +325,36 @@ html.has-cursor * {
 .silence {
   height: 100svh;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   justify-items: center;
   padding: 110px clamp(16px, 4vw, 48px) 34px;
 }
 .silence__kicker {
   margin: 0;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.4em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
 }
 .silence__title {
   align-self: end;
+  max-width: 18ch;
   margin: 0 0 6vh;
   font-family: var(--font-serif), serif;
   font-weight: 400;
-  font-size: clamp(44px, 6.4vw, 108px);
-  line-height: 1;
-  letter-spacing: -0.02em;
+  font-size: clamp(40px, min(5.6vw, 8svh), 96px);
+  line-height: 1.02;
+  letter-spacing: -0.01em;
   text-align: center;
+  text-wrap: balance;
 }
 .silence__foot {
   width: 100%;
   display: flex;
   align-items: center;
   gap: 24px;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
 }
 .silence__line {
   flex: 1;
@@ -422,11 +414,11 @@ html.has-cursor * {
 .chaos__word {
   display: flex;
   margin: 0;
-  font-family: var(--font-wide), sans-serif;
-  font-weight: 700;
+  font-family: var(--font-serif), serif;
+  font-weight: 400;
   font-size: clamp(56px, 15.5vw, 280px);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
 }
 .chaos__letter {
   display: inline-block;
@@ -462,7 +454,7 @@ html.has-cursor * {
   font-weight: 400;
   font-size: clamp(44px, 6vw, 104px);
   line-height: 1;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .chapter {
   min-height: 125svh;
@@ -493,7 +485,7 @@ html.has-cursor * {
   font-weight: 400;
   font-size: clamp(56px, 7.4vw, 128px);
   line-height: 0.92;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.01em;
 }
 .chapter__copy {
   margin: 0;
@@ -515,10 +507,9 @@ html.has-cursor * {
   border-left: 1px solid var(--line);
 }
 .chapter__specs dt {
-  font-family: var(--font-wide), sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 .chapter__specs dd {
@@ -528,10 +519,9 @@ html.has-cursor * {
 }
 .chapter__link {
   justify-self: start;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 9px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   padding-bottom: 8px;
   border-bottom: 1px solid var(--line);
   transition: border-color 0.3s;
@@ -585,7 +575,7 @@ html.has-cursor * {
   font-weight: 400;
   font-size: clamp(36px, 4.4vw, 76px);
   line-height: 1.04;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 .hold {
   grid-row: 4;
@@ -598,10 +588,9 @@ html.has-cursor * {
   border-radius: 50%;
   background: transparent;
   color: var(--fg);
-  font-family: var(--font-wide), sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   cursor: pointer;
   user-select: none;
   touch-action: none;
@@ -657,9 +646,9 @@ html.has-cursor * {
 }
 .invite__code {
   margin: 8px 0 0;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 10px;
-  letter-spacing: 0.4em;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--red);
 }
 
@@ -677,7 +666,7 @@ html.has-cursor * {
   font-family: var(--font-serif), serif;
   font-size: 31vw;
   line-height: 0.78;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.01em;
   text-align: center;
 }
 .calm__row {
@@ -698,10 +687,9 @@ html.has-cursor * {
   justify-content: space-between;
   gap: 16px;
   padding: 0 0 28px;
-  font-family: var(--font-wide), sans-serif;
-  font-size: 8px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--muted);
 }
 
@@ -714,9 +702,6 @@ html.has-cursor * {
   }
   .nav {
     justify-content: space-between;
-  }
-  .silence__foot span:last-child {
-    display: none;
   }
   .chapter {
     grid-template-columns: 1fr;

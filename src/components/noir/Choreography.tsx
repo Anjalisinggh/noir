@@ -12,7 +12,7 @@ const clamp01 = (v: number) => Math.min(1, Math.max(0, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 /**
- * The mood arc: silence → tension → chaos → (the ink floods) → discovery → vault → calm.
+ * The mood arc: silence, then tension, then chaos, then (the ink floods), then discovery, then vault, then calm.
  *
  * The liquid's target is resolved PURELY from the scroll position on every
  * scroll tick (see `resolve`), so jumping, link-gliding or scrolling backwards
@@ -68,7 +68,7 @@ export function Choreography() {
       } else if (seen(intro, 0.6)) {
         t = { shape: 0, x: 0.5, y: 0.55, size: m ? 0.17 : 0.13, spikes: 0, chaos: 0, reach: 0.25 };
       } else {
-        // silence → tension (scrubbed), then chaos (scrubbed) on top of it
+        // silence, then tension (scrubbed), then chaos (scrubbed) on top of it
         const tp = clamp01((y - (top(tension) - vh)) / tension.offsetHeight);
         const cp = clamp01((y - top(chaos)) / (chaos.offsetHeight - vh));
         const ce = cp * cp; // power2.in: the storm builds, then breaks
@@ -86,7 +86,7 @@ export function Choreography() {
       Object.assign(target, t);
     };
 
-    // resolve on every scroll tick, resize, refresh — and once per frame while a hold is in progress
+    // resolve on every scroll tick, resize, refresh: and once per frame while a hold is in progress
     const onScroll = () => resolve();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);

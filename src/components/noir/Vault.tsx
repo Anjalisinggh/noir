@@ -51,13 +51,12 @@ export function Vault() {
   if (open) {
     return (
       <div className="invite" role="status">
-        <p className="label">Invitation № 0001</p>
-        <p className="invite__title">You are on the list.</p>
+        <p className="label">Invitation 0001</p>
+        <p className="invite__title">You&apos;re on the list.</p>
         <p className="invite__copy">
-          A private viewing of all four pieces, for one evening only. The location is revealed twenty-four hours
-          before. Dress for the dark.
+          One evening, all four pieces in one room. We send the address the day before. Wear something you
+          don&apos;t mind getting ink on.
         </p>
-        <p className="invite__code">NOIR · 0001 · ∞</p>
       </div>
     );
   }

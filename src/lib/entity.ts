@@ -1,9 +1,9 @@
 /**
  * The living liquid has two layers of state:
  *
- *  target  — where it SHOULD be, resolved purely from the scroll position
+ *  target : where it SHOULD be, resolved purely from the scroll position
  *            (so jumps, links and reverse scrolling can never leave it stale)
- *  entity  — what is drawn; the renderer glides it toward `target` every frame.
+ *  entity : what is drawn; the renderer glides it toward `target` every frame.
  *
  *  x, y     centre, as a fraction of the viewport
  *  size     radius, as a fraction of min(viewport width, height)
