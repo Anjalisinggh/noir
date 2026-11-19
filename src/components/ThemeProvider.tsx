@@ -48,6 +48,77 @@ function toggleOrigin(from?: InkOrigin) {
   return r ? { x: r.left + r.width / 2, y: r.top + r.height / 2 } : { x: window.innerWidth - 40, y: 32 };
 }
 
+/** the page colour of each theme (globals.css --bg), used to paint the ink on phones */
+const THEME_BG: Record<Theme, string> = { light: "#f1f0ed", dark: "#050506" };
+
+/**
+ * The desktop splash masks a View Transition with an SVG mask. WebKit (Safari, and every browser on
+ * iPhone and iPad) can't apply that mask to the transition, and older phones have no View
+ * Transitions at all, so there the theme just snapped. These get the ink drawn on a canvas instead.
+ */
+function needsInkOverlay() {
+  if (!document.startViewTransition) return true;
+  const ua = navigator.userAgent;
+  const apple = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  const safari = /AppleWebKit/.test(ua) && !/Chrome|Chromium|Edg|OPR|Android/.test(ua);
+  return apple || safari;
+}
+
+/**
+ * Pour the ink on a full-screen canvas: the same arrival field, thresholded on the CPU each frame
+ * (the field is small, ~0.6x the screen), painted in the new theme's colour. The theme flips once
+ * the ink covers the screen, then the canvas fades away.
+ */
+async function pourOverlay(f: InkField, color: string, duration: number, commit: () => void) {
+  const img = new Image();
+  img.src = f.url;
+  await img.decode();
+  const w = img.naturalWidth;
+  const h = img.naturalHeight;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  canvas.setAttribute("aria-hidden", "true");
+  Object.assign(canvas.style, {
+    position: "fixed", inset: "0", width: "100%", height: "100%", zIndex: "2147483646",
+    pointerEvents: "none", transition: "opacity .35s ease",
+  } satisfies Partial<CSSStyleDeclaration>);
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return commit();
+  ctx.drawImage(img, 0, 0);
+  const field = ctx.getImageData(0, 0, w, h).data;
+  const out = ctx.createImageData(w, h);
+  const px = out.data;
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(color.slice(i, i + 2), 16));
+  for (let i = 0; i < px.length; i += 4) {
+    px[i] = r;
+    px[i + 1] = g;
+    px[i + 2] = b;
+  }
+  document.body.appendChild(canvas);
+
+  const S = EDGE_SHARPNESS;
+  const end = 1 + 3 / S;
+  const start = performance.now();
+  await new Promise<void>((resolve) => {
+    const frame = (now: number) => {
+      const p = Math.min(1, (now - start) / duration);
+      const t = inkEase(p) * end;
+      for (let i = 0; i < px.length; i += 4) {
+        const a = S * (t - field[i] / 255);
+        px[i + 3] = a <= 0 ? 0 : a >= 1 ? 255 : a * 255;
+      }
+      ctx.putImageData(out, 0, 0);
+      if (p < 1) requestAnimationFrame(frame);
+      else resolve();
+    };
+    requestAnimationFrame(frame);
+  });
+  commit();
+  canvas.style.opacity = "0";
+  setTimeout(() => canvas.remove(), 400);
+}
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
   const [ink, setInk] = useState<InkSettings>(DEFAULT_INK);
@@ -111,13 +182,28 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     };
 
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!document.startViewTransition || reduced) {
+    if (reduced) {
       commit();
       return;
     }
 
     busy.current = true;
     const root = document.documentElement;
+
+    if (needsInkOverlay()) {
+      try {
+        const f = await prepare(false, from);
+        if (f) await pourOverlay(f, THEME_BG[next], ink.duration, commit);
+        else commit();
+      } catch {
+        if (root.dataset.theme !== next) commit();
+      } finally {
+        busy.current = false;
+        prepare(true);
+      }
+      return;
+    }
+
     try {
       const f = await prepare(false, from);
       if (!f || !maskRef.current || !imageRef.current || !matrixRef.current) {
