@@ -31,8 +31,9 @@ export const metadata: Metadata = {
   description: "A cinematic concept experience for a fictional ultra-luxury maison, led by a living black liquid.",
 };
 
-// Every visit begins in silence (light). Also marks the page as loading before paint.
-const boot = `(function(){var d=document.documentElement;d.classList.add('is-loading');d.dataset.theme='light'})();`;
+// Restore the theme the visitor last chose (first visit begins in silence: light), before paint so
+// a refresh never flashes the wrong theme. Also marks the page as loading.
+const boot = `(function(){var d=document.documentElement,t='light';d.classList.add('is-loading');try{if(localStorage.getItem('theme')==='dark')t='dark'}catch(e){}d.dataset.theme=t})();`;
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
