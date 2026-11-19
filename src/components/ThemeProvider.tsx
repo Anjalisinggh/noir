@@ -96,41 +96,69 @@ function fillAlpha(px: Uint8ClampedArray, field: Uint8ClampedArray, t: number) {
   }
 }
 
-export type MaskFrames = { urls: string[]; imgs: HTMLImageElement[] };
+/**
+ * Every threshold frame packed into one sprite sheet. WebKit loads an image asynchronously each
+ * time a mask's url changes, so swapping urls per frame flickered on iPhone. With one decoded sheet
+ * only mask-position moves, which repaints in the same frame.
+ */
+export type MaskFrames = {
+  url: string;
+  img: HTMLImageElement;
+  count: number;
+  cols: number;
+  rows: number;
+};
 
-/** threshold the field into `count` decoded PNG masks, from nothing to fully covered */
-async function buildMaskFrames(f: InkField, count: number): Promise<MaskFrames | null> {
+const SPRITE_FRAMES = 64;
+/** longest side of one frame; the mask is scaled up to the screen and its edge is soft anyway */
+const SPRITE_TILE = 420;
+
+async function buildMaskFrames(f: InkField, count = SPRITE_FRAMES): Promise<MaskFrames | null> {
   const r = await readField(f);
   if (!r) return null;
-  const out = r.ctx.createImageData(r.w, r.h);
+  // shrink the field to the tile size first, then threshold that
+  const k = Math.min(1, SPRITE_TILE / Math.max(r.w, r.h));
+  const tw = Math.max(16, Math.round(r.w * k));
+  const th = Math.max(16, Math.round(r.h * k));
+  const small = document.createElement("canvas");
+  small.width = tw;
+  small.height = th;
+  const sctx = small.getContext("2d", { willReadFrequently: true });
+  if (!sctx) return null;
+  sctx.imageSmoothingQuality = "high";
+  sctx.drawImage(r.canvas, 0, 0, tw, th);
+  const field = sctx.getImageData(0, 0, tw, th).data;
+
+  const cols = Math.ceil(Math.sqrt(count));
+  const rows = Math.ceil(count / cols);
+  const sheet = document.createElement("canvas");
+  sheet.width = cols * tw;
+  sheet.height = rows * th;
+  const ctx = sheet.getContext("2d");
+  if (!ctx) return null;
+  const out = ctx.createImageData(tw, th);
   out.data.fill(255);
-  const urls: string[] = [];
-  const imgs: HTMLImageElement[] = [];
-  for (let k = 0; k < count; k++) {
-    fillAlpha(out.data, r.field, (k / (count - 1)) * FULL);
-    r.ctx.putImageData(out, 0, 0);
-    const blob = await new Promise<Blob | null>((res) => r.canvas.toBlob(res, "image/png"));
-    if (!blob) break;
-    const url = URL.createObjectURL(blob);
-    const img = new Image();
-    img.src = url;
-    urls.push(url);
-    imgs.push(img);
+  for (let i = 0; i < count; i++) {
+    fillAlpha(out.data, field, (i / (count - 1)) * FULL);
+    ctx.putImageData(out, (i % cols) * tw, Math.floor(i / cols) * th);
   }
-  await Promise.all(imgs.map((i) => i.decode().catch(() => {})));
-  if (urls.length < count) {
-    urls.forEach(URL.revokeObjectURL);
+  const blob = await new Promise<Blob | null>((res) => sheet.toBlob(res, "image/png"));
+  if (!blob) return null;
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.src = url;
+  try {
+    await img.decode();
+  } catch {
+    URL.revokeObjectURL(url);
     return null;
   }
-  return { urls, imgs };
+  return { url, img, count, cols, rows };
 }
 
 function freeFrames(m: MaskFrames | null | undefined) {
-  m?.urls.forEach((u) => URL.revokeObjectURL(u));
+  if (m) URL.revokeObjectURL(m.url);
 }
-
-/** about 30 masks a second over the length of the pour */
-const frameCount = (duration: number) => Math.max(24, Math.min(72, Math.round((duration / 1000) * 30)));
 
 /**
  * Old browsers only: pour the ink on a full-screen canvas. The canvas is white and blends with
@@ -171,15 +199,31 @@ async function pourOverlay(f: InkField, duration: number, commit: () => void) {
   canvas.remove();
 }
 
-/** WebKit: a real View Transition, its new snapshot masked by the pre-rendered frames */
+/** WebKit: a real View Transition, its new snapshot masked by one tile of the sprite sheet */
 async function rasterTransition(m: MaskFrames, duration: number, commit: () => void) {
   const root = document.documentElement;
+  // static part: the sheet, scaled so one tile covers the snapshot (percentages follow the
+  // snapshot's real size, which on iPhone can be taller than innerHeight)
+  const sheet = document.createElement("style");
+  const base = `url("${m.url}") no-repeat`;
+  const size = `${m.cols * 100}% ${m.rows * 100}%`;
+  sheet.textContent =
+    `html.ink-raster::view-transition-new(root){` +
+    `-webkit-mask:${base};mask:${base};-webkit-mask-size:${size};mask-size:${size};}`;
+  // moving part: which tile shows. Only the position changes, never the image.
   const style = document.createElement("style");
-  const show = (url: string) => {
-    const v = `url("${url}") 0 0 / 100% 100% no-repeat`;
-    style.textContent = `html.ink-raster::view-transition-new(root){mask:${v};-webkit-mask:${v};}`;
+  const pct = (n: number, of: number) => (of > 1 ? (n / (of - 1)) * 100 : 0);
+  const show = (i: number) => {
+    if (i === m.count - 1) {
+      // fully covered: drop the mask so no seam can show at the edges
+      style.textContent = `html.ink-raster::view-transition-new(root){-webkit-mask:none;mask:none;}`;
+      return;
+    }
+    const pos = `${pct(i % m.cols, m.cols)}% ${pct(Math.floor(i / m.cols), m.rows)}%`;
+    style.textContent = `html.ink-raster::view-transition-new(root){-webkit-mask-position:${pos};mask-position:${pos};}`;
   };
-  show(m.urls[0]);
+  document.head.appendChild(sheet);
+  show(0);
   document.head.appendChild(style);
   root.classList.add("ink-raster");
   try {
@@ -190,14 +234,14 @@ async function rasterTransition(m: MaskFrames, duration: number, commit: () => v
       { duration, pseudoElement: "::view-transition-new(root)" },
     );
     const end = 1 + 3 / EDGE_SHARPNESS;
-    const last = m.urls.length - 1;
+    const last = m.count - 1;
     let shown = 0;
     await new Promise<void>((resolve) => {
       const tick = () => {
         const p = Math.min(1, Number(clock.currentTime ?? 0) / duration);
-        const k = Math.min(last, Math.round(((inkEase(p) * end) / FULL) * last));
-        if (k !== shown) show(m.urls[(shown = k)]);
-        if (k === last) {
+        const i = Math.min(last, Math.round(((inkEase(p) * end) / FULL) * last));
+        if (i !== shown) show((shown = i));
+        if (i === last) {
           clock.finish();
           resolve();
         } else if (clock.playState !== "finished") requestAnimationFrame(tick);
@@ -210,6 +254,7 @@ async function rasterTransition(m: MaskFrames, duration: number, commit: () => v
   } finally {
     root.classList.remove("ink-raster");
     style.remove();
+    sheet.remove();
   }
 }
 
@@ -244,7 +289,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       if (!force && pending.current?.key === key) return pending.current.job;
       const job = renderInkField(o.x, o.y, w, h, ink).then(async (f) => {
         if (!f) return null;
-        const frames = inkMode() === "raster" ? await buildMaskFrames(f, frameCount(ink.duration)) : null;
+        const frames = inkMode() === "raster" ? await buildMaskFrames(f) : null;
         if (field.current) {
           URL.revokeObjectURL(field.current.url);
           freeFrames(field.current.frames);
